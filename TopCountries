@@ -1,20 +1,21 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
-# Create SparkSession
-spark = SparkSession.builder \
-    .appName("Top 10 Countries by Number of Customers") \
-    .getOrCreate()
-# Assuming you have a DataFrame named 'customers' with columns 'country' and 'customer_id'
-# Replace 'customers' and 'customer_id' with actual DataFrame and column names in your dataset
-# Read the data into DataFrame
-customers = spark.read.csv("customers.csv", header=True)
-# Group by country and count the number of customers
-country_counts = customers.groupBy("country").count()
-# Sort the counts in descending order
-sorted_country_counts = country_counts.orderBy(col("count").desc())
-# Take the top 10 countries
-top_10_countries = sorted_country_counts.limit(10)
-# Show the result
-top_10_countries.show()
-# Stop SparkSession
+from pyspark.sql.functions import desc
+
+# Create a Spark session
+spark = SparkSession.builder.appName("TopCountries").getOrCreate()
+
+# Load the data into a DataFrame and read the CSV file into a DataFrame using the spark.read.csv method
+data = spark.read.csv("customers.csv", header=True, inferSchema=True)
+
+# Group data by country and count the number of customers in each country
+country_customers = data.groupBy("Country").count()
+
+# Sort the countries in descending order by the count to get top countries
+top_countries = country_customers.orderBy(desc("count")).limit(10)
+
+# Select top 10 countries with the most customers using limit(10)
+# Print out using show()
+top_countries.show()
+
+# Stop the Spark session
 spark.stop()
