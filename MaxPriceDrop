@@ -28,3 +28,5 @@ top3_df = price_drop_df.orderBy(col("PriceDrop").desc()).limit(3).select("StockC
 # Write to CSV
 top3_df.write.csv("products_max_price_drop.csv", header=True)
 
+# Print results
+print(top3_df.show())
