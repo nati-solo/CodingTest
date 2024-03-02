@@ -26,7 +26,5 @@ spark.stop()
 # Write the output to a file
 top_countries.write.csv("top_countries.csv", header=True)
 
-
-# Write the output to a file
-top_countries.write.csv("top_countries.csv", header=True)
-
+# Print top 10 countries
+print(top_countries)
