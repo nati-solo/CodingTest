@@ -5,7 +5,7 @@
 * AvgPriceVolume file determines the relationship between the average unit price of products and their sales volume, plots bar graph & line chart to see the relationship between quantity and average unit price (for Top 25 products selected by total quantity), shows computed statistics, computes the correlation between the average unit price and sales volume across all products and write the output to AvgPriceVolume.csv. 
 * MaxPriceDrop file determines the Top 3 products with the maximum unit price drop in the last month and writes the output to products_max_price_drop.csv.
 * Validation file performs data validation, cleaning and error handling procedures for all three csv files.
-* 
+  
 # How to run the PySpark application:
 
 Step 1: Make sure you have Spark installed and configured on your system before proceeding.
