@@ -1,7 +1,7 @@
 # Import required libraries
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import avg, sum, col
-import matplotlib.pyplot as plt
+from pyspark.sql.functions import desc
 
 # Start Spark session
 spark = SparkSession.builder.appName("AvgPriceVolume").getOrCreate()
@@ -18,24 +18,8 @@ stats_df = df.groupBy("StockCode").agg(
     avg("UnitPrice").alias("avg_price"),
     sum("Quantity").alias("total_qty"))
 
-# Generate plots using PySpark DataFrame plot() method
-from pyspark.sql.functions import desc
-
 # Filter for top 25 by total_qty
 top25_df = stats_df.orderBy(desc("total_qty")).limit(25)
-
-# Generate bar plot using filtered DataFrame
-bar_df = top25_df.select("StockCode", "total_qty")
-bar = bar_df.plot(kind="bar", x="StockCode", y="total_qty", rot=0)
-
-# Generate line plot using filtered DataFrame
-line_df = top25_df.orderBy("StockCode").select("StockCode", "avg_price")
-line = line_df.plot(kind="line", x="StockCode", y="avg_price", rot=0, ax=bar)
-
-# Overlay and display plots
-plt.legend(["Quantity Ordered", "Price"])
-plt.xlabel("Product Code")
-plt.show()
 
 # Write output to AvgPriceVolume.csv file
 stats_df.write.csv("AvgPriceVolume.csv", header=True)
@@ -49,3 +33,22 @@ stats_df.show()
 # Correlation ~0 - no correlation
 corr = stats_df.select(col("avg_price"), col("total_qty")).corr("avg_price", "total_qty")
 print("Correlation between average unit price and sales volume: ", corr)
+
+"""
+# Optional way to show the relationships is using an overlay bar-line graph
+# Import libraries
+import matplotlib.pyplot as plt
+
+# Generate bar plot using filtered DataFrame
+bar_df = top25_df.select("StockCode", "total_qty")
+bar = bar_df.plot(kind="bar", x="StockCode", y="total_qty", rot=0)
+
+# Generate line plot using filtered DataFrame
+line_df = top25_df.orderBy("StockCode").select("StockCode", "avg_price")
+line = line_df.plot(kind="line", x="StockCode", y="avg_price", rot=0, ax=bar)
+
+# Overlay and display plots
+plt.legend(["Quantity Ordered", "Price"])
+plt.xlabel("Product Code")
+plt.show()
+"""
