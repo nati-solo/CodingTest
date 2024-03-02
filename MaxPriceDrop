@@ -6,8 +6,12 @@ from pyspark.sql.functions import max, min, col
 # Create a Spark session
 spark = SparkSession.builder.appName('MaxPriceDrop').getOrCreate()
 
-# Read the csv files
-orders_df = spark.read.option("header", "true").csv('orders.csv')
+# Specify the date format in the dateFormat option and read orders.csv
+orders_df = spark.read.csv('orders.csv', dateFormat='M/d/yyyy H:mm', header=True)
+# Convert InvoiceDate format to a timestamp using to_timestamp()
+orders_df = orders_df.withColumn('InvoiceDate', orders_df['InvoiceDate'].cast('timestamp'))
+
+# Read the products.csv 
 products_df = spark.read.option("header", "true").csv('products.csv')
 
 # Join the dataframes on StockCode
