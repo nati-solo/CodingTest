@@ -1,1 +1,30 @@
-#Revenue distribution by country
+# Import necessary libraries including SparkSession and desc
+
+import pyspark 
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import desc
+
+# Create a Spark session
+spark = SparkSession.builder.appName("RevenueByCountry").getOrCreate()
+
+# Read the csv files
+customers_df = spark.read.csv('customers.csv', header=True) 
+orders_df = spark.read.csv('orders.csv', header=True)
+products_df = spark.read.csv('products.csv', header=True)
+
+# Inner join orders and products on StockCode to get Quantity and UnitPrice
+orders_products_df = orders_df.join(products_df, orders_df.StockCode == products_df.StockCode, 'inner')
+
+# Calculate Revenue = Quantity * UnitPrice 
+# withColumn adds new column 'Revenue' with the calculated revenue
+orders_products_df = orders_products_df.withColumn('Revenue', orders_products_df.Quantity * orders_products_df.UnitPrice)
+
+# Inner join orders_products and customers to include Country field
+revenue_by_country_df = orders_products_df.join(customers_df, orders_products_df.CustomerID == customers_df.CustomerID, 'inner')
+
+# Group data by Country and sum Revenue for each Country
+revenue_by_country_df = revenue_by_country_df.groupBy('Country').sum('Revenue')
+
+# Write output to revenue_by_country.csv
+revenue_by_country_df.write.csv('revenue_by_country.csv', header=True)
+
