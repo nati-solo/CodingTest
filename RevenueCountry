@@ -28,3 +28,5 @@ revenue_by_country_df = revenue_by_country_df.groupBy('Country').sum('Revenue')
 # Write output to revenue_by_country.csv
 revenue_by_country_df.write.csv('revenue_by_country.csv', header=True)
 
+# Print output for top 20 rows
+print(revenue_by_country_df.show(20))
