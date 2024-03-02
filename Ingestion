@@ -31,7 +31,7 @@ customers_df = spark.read.csv('customers.csv', schema=customer_schema)
 products_df = spark.read.csv('products.csv', schema=product_schema) 
 orders_df = spark.read.csv('orders.csv', schema=order_schema)
 
-# Write dataframes to the target tables (customers->customers, products-> products, orders-> orders)
+# Write dataframes to the target Spark tables
 customers_df.write.saveAsTable('customers') 
 products_df.write.saveAsTable('products')
 orders_df.write.saveAsTable('orders')
