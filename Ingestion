@@ -1,0 +1,37 @@
+# Import necessary libraries including SparkSession and data types from pyspark.sql.types
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType,StructField, StringType, IntegerType, TimestampType, DoubleType
+
+# Create a Spark session
+spark = SparkSession.builder.appName('Ingestion').getOrCreate()
+
+# Define schemas for customers.csv 
+customer_schema = StructType([
+    StructField("CustomerID", IntegerType(), True),
+    StructField("Country", StringType(), True)  
+    ])
+
+# Define schema for products.csv
+product_schema = StructType([
+    StructField("StockCode", StringType(), True),
+    StructField("Description", StringType(), True),
+    StructField("UnitPrice", DoubleType(), True) ])
+
+# Define schema for orders.csv  
+order_schema = StructType([
+    StructField("InvoiceNo", StringType(), True),
+    StructField("StockCode", StringType(), True),  
+    StructField("Quantity", IntegerType(), True),
+    StructField("InvoiceDate", TimestampType(), True),
+    StructField("CustomerID", IntegerType(), True) 
+    ])
+
+# Read the files with defined schema
+customers_df = spark.read.csv('customers.csv', schema=customer_schema)
+products_df = spark.read.csv('products.csv', schema=product_schema) 
+orders_df = spark.read.csv('orders.csv', schema=order_schema)
+
+# Write dataframes to the target tables (customers->customers, products-> products, orders-> orders)
+customers_df.write.saveAsTable('customers') 
+products_df.write.saveAsTable('products')
+orders_df.write.saveAsTable('orders')
