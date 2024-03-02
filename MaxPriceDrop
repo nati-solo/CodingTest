@@ -1,1 +1,30 @@
-#Top 3 products with the maximum unit price drop in the last month
+# Import necessary libraries including SparkSession, max, min, col
+import pyspark
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import max, min, col
+
+# Create a Spark session
+spark = SparkSession.builder.appName('MaxPriceDrop').getOrCreate()
+
+# Read the csv files
+orders_df = spark.read.option("header", "true").csv('orders.csv')
+products_df = spark.read.option("header", "true").csv('products.csv')
+
+# Join the dataframes on StockCode
+orders_products_df = orders_df.join(products_df, 'StockCode') 
+
+# Filter to only include last month of data
+last_month = orders_products_df.filter("InvoiceDate >= date_sub(current_date(), 30)")
+
+# Get max and min UnitPrice for each product 
+price_drop_df = last_month.groupBy("StockCode", "Description").agg(max("UnitPrice").alias("max_price"), min("UnitPrice").alias("min_price"))
+
+# Calculate price drop between max and min price in last month
+price_drop_df = price_drop_df.withColumn("PriceDrop", col("max_price") - col("min_price"))
+
+# Get top 3 products by price drop
+top3_df = price_drop_df.orderBy(col("PriceDrop").desc()).limit(3).select("StockCode", "Description", "PriceDrop")
+
+# Write to CSV
+top3_df.write.csv("products_max_price_drop.csv", header=True)
+
