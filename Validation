@@ -1,16 +1,16 @@
-# Import required modules
+# Import necessary libraries including SparkSession and data types from pyspark.sql.types
 from pyspark.sql.types import * 
-from pyspark.sql.functions import col, trim, isnan, when
+from pyspark.sql.functions import col, trim, isnan
+from pyspark.sql.types import StructType,StructField, StringType, IntegerType, TimestampType, DoubleType
 
-# Define schema for customers.csv
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+# Define schema for customers.csv using the StructType and StructField classes
 customer_schema = StructType([
     StructField("CustomerID", IntegerType(), True),
     StructField("Country", StringType(), True)  
-])
+    ])
 
 # Read customers.csv by passing the predefined schema and spark.read.csv() method to parse the csv data
-# Any errors parsing the csv will throw an exception in the try block and print error message in the exception block
+# Any errors throw an exception in try block and print error message in exception block
 # raise e statement stops the program execution and surfaces the underlying error
 # If no error, the customers_df is created using the schema
 
@@ -18,14 +18,14 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('csv-dataframes').getOrCreate()
 try:
     customers_df = spark.read.csv("customers.csv", schema=customer_schema)
-
 except Exception as e:
     print("Error parsing customers.csv")
     raise e
 
-# Import data types from pyspark.sql.types
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, TimestampType
-# Define schema for orders.csv  
+# Validate orders dataframe to show columns with nulls
+customers_df.filter(isnan(col("CustomerID")) | isnan(col("Country"))).show()
+
+# Define schema for orders.csv using the StructType and StructField classes
 order_schema = StructType([
     StructField("InvoiceNo", StringType(), True),
     StructField("StockCode", StringType(), True),  
@@ -34,8 +34,8 @@ order_schema = StructType([
     StructField("CustomerID", IntegerType(), True) 
     ])
 
-# Read orders.csv by passing the predefined schema and spark.read.csv() method to parse the csv data
-# Any errors parsing the csv will throw an exception in the try block and print error message in the exception block
+# Read customers.csv by passing the predefined schema and spark.read.csv() method to parse the csv data
+# Any errors throw an exception in try block and print error message in exception block
 # raise e statement stops the program execution and surfaces the underlying error
 # If no error, the orders_df is created using the schema
 
@@ -45,7 +45,7 @@ except Exception as e:
     print("Error parsing orders.csv")
     raise e
 
-# Validate orders data and check for nulls  
+# Validate orders dataframe to show columns with nulls
 orders_df.filter(isnan(col("Quantity")) | isnan(col("CustomerID"))).show()
 
 # Check out of range quantity
@@ -55,16 +55,15 @@ bad_quantities.write.csv("bad_quantities")
 # Clean orders data 
 orders_clean = orders_df.na.fill(0)
 
-# Import data types from pyspark.sql.types
-from pyspark.sql.types import StructType, StructField, StringType, DoubleType
-# Define schema for products.csv
+# Define schema for products.csv using the StructType and StructField classes
 product_schema = StructType([
     StructField("StockCode", StringType(), True),
     StructField("Description", StringType(), True),
-    StructField("UnitPrice", DoubleType(), True) ])
+    StructField("UnitPrice", DoubleType(), True) 
+    ])
 
-# Read products.csv by passing the predefined schema and spark.read.csv() method to parse the csv data
-# Any errors parsing the csv will throw an exception in the try block and print error message in the exception block
+# Read customers.csv by passing the predefined schema and spark.read.csv() method to parse the csv data
+# Any errors throw an exception in try block and print error message in exception block
 # raise e statement stops the program execution and surfaces the underlying error
 # If no error, the products_df is created using the schema
 
@@ -74,9 +73,11 @@ except Exception as e:
     print("Error parsing products.csv")
     raise e
 
+# Validate orders dataframe to show columns with nulls
+products_df.filter(isnan(col("StockCode")) | isnan(col("Description")) | isnan(col("UnitPrice"))).show()
+
 # Clean products data
 products_clean = products_df.withColumn("Description", trim(col("Description")))
 
 # Further analysis on clean data
 joined_df = orders_clean.join(products_clean, "StockCode")
-
